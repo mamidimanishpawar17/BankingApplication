@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,7 +23,7 @@ namespace BankingApplication
                 Console.WriteLine("3. Add account details");
                 Console.WriteLine("4. Generate Account details by Account Number");
 
-                int option = Convert.ToInt32(Console.ReadLine());
+                int option = Convert.ToInt16(Console.ReadLine());
 
                 switch (option)
                 {
@@ -45,7 +46,6 @@ namespace BankingApplication
                         break;
                     case 4:
                         AddAccountDetails getdetails= new AddAccountDetails();
-                        Console.Write("ENter the required accountnumber to display details of the account number:");
                         long accountdetals = Convert.ToInt64(Console.ReadLine());
                         getdetails.GetAccountDetails((int)accountdetals);
                         break;
