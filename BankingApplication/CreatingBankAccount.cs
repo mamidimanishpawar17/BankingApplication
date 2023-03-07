@@ -73,7 +73,7 @@ namespace ConsoleApp1
                     }
                     command.Parameters.AddWithValue("@IsActive", isActive);
 
-                    Console.Write("Enter account type: ");
+                    Console.Write("Enter account type:Current/Savings ");
                     string accountType = Console.ReadLine();
                     command.Parameters.AddWithValue("@AccountType", accountType);
 
