@@ -11,6 +11,7 @@ namespace BankingApplication
 {
     public class UpdateAccountWithNumber
     {
+        string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
         public void UserAccountDetails(int accountnumber)
         {
             Console.WriteLine("Enter the following details:");
@@ -29,7 +30,7 @@ namespace BankingApplication
             Console.Write("Modified By: ");
             string modifiedBy = Console.ReadLine();
 
-            Console.Write("Modified Date (MM/DD/YYYY): ");
+            Console.Write("Modified Date (DD/MM/YYYY): ");
             DateTime? modifiedDate = null;
             string modifiedDateString = Console.ReadLine();
             if (!string.IsNullOrEmpty(modifiedDateString))
@@ -55,7 +56,7 @@ namespace BankingApplication
                 }
             }
 
-            string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
+            
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -91,8 +92,6 @@ namespace BankingApplication
         }
         private decimal GetMinimumBalance(long accountNumber)
         {
-            string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();

@@ -8,13 +8,14 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace BankingApplication
 {
 
     public class AddAccountDetails : CreatingBankAccount
     {
-        private const string ConnectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
+        const string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
 
         public void UserAccountDetails()
         {
@@ -60,8 +61,6 @@ namespace BankingApplication
                 }
             }
 
-            string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True"; 
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -99,8 +98,6 @@ namespace BankingApplication
         }
         private decimal GetMinimumBalance(long accountNumber)
         {
-            string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True"; 
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -131,24 +128,31 @@ namespace BankingApplication
 
         public void GetAccountDetails(long accountNumber)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            Console.Write("Enter account number: ");
+            accountNumber = long.Parse(Console.ReadLine());
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 using (SqlCommand command = new SqlCommand("GetAccountByNumber", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@AccountNumber", accountNumber);
+                    command.Parameters.Add("@AccountNumber", SqlDbType.BigInt).Value = accountNumber;
 
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            // Read and process the data here
+                            Console.WriteLine($"AccountNumber: {reader["AccountNumber"]}");
+                            Console.WriteLine($"MinimumAccountBalance : {reader["MinimumAccountBalance"]}");
+                            Console.WriteLine($"Account Balance: {reader["AccountBalance"]}");
                         }
                     }
                 }
-            }
 
+                Console.ReadLine();
+
+            }
         }
 
 
