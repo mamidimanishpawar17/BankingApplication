@@ -14,8 +14,8 @@ namespace BankingApplication
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to the Banking Application!");
-
-            while (true)
+            int i = 0;
+            while (i<4)
             {
                 Console.WriteLine("\nPlease select an option:");
                 Console.WriteLine("1. Create a new bank account");
@@ -54,6 +54,7 @@ namespace BankingApplication
                         Console.WriteLine("Invalid option selected. Please try again.");
                         break;
                 }
+                i++;
             }
         }
     }

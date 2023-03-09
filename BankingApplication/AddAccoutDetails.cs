@@ -194,14 +194,16 @@ namespace BankingApplication
 
         private string GetAccountDetailsHtml(long accountNumber, decimal accountBalance, decimal minimumAccountBalance, bool isActive, string modifiedBy, DateTime? modifiedDate)
         {
-            string html = "<table><tbody>" +
-                $"<tr><td>Account Number:</td><td>{accountNumber}</td></tr>" +
-                $"<tr><td>Account Balance:</td><td>{accountBalance}</td></tr>" +
-                $"<tr><td>Minimum Account Balance:</td><td>{minimumAccountBalance}</td></tr>" +
-                $"<tr><td>Is Active:</td><td>{isActive}</td></tr>" +
-                $"<tr><td>Modified By:</td><td>{modifiedBy}</td></tr>" +
-                $"<tr><td>Modified Date:</td><td>{modifiedDate}</td></tr>" +
+            string html = "<table style=\"border-collapse: collapse;\">" +
+                "<tbody>" +
+                $"<tr><td style=\"border: 1px solid black;\">Account Number:</td><td style=\"border: 1px solid black;\">{accountNumber}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Account Balance:</td><td style=\"border: 1px solid black;\">{accountBalance}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Minimum Account Balance:</td><td style=\"border: 1px solid black;\">{minimumAccountBalance}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Is Active:</td><td style=\"border: 1px solid black;\">{isActive}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Modified By:</td><td style=\"border: 1px solid black;\">{modifiedBy}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Modified Date:</td><td style=\"border: 1px solid black;\">{modifiedDate}</td></tr>" +
                 "</tbody></table>";
+
 
             return html;
         }

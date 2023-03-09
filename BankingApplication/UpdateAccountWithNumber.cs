@@ -56,8 +56,6 @@ namespace BankingApplication
                 }
             }
 
-            
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
