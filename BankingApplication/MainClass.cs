@@ -1,4 +1,5 @@
 ﻿using ConsoleApp1;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,10 +10,17 @@ using System.Threading.Tasks;
 
 namespace BankingApplication
 {
-    class MainClass : AddAccountDetails
+    class MainClass 
     {
         static void Main(string[] args)
         {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+               .Build();
+
+             string connectionString = configuration.GetConnectionString("DefaultConnection");
+
+
             Console.WriteLine("Welcome to the Banking Application!");
             int i = 0;
             while (i<4)
@@ -28,24 +36,24 @@ namespace BankingApplication
                 switch (option)
                 {
                     case 1:
-                        MainClass main = new MainClass();
-                        main.CreateBankAccount();
+                        CreatingBankAccount bankAccount = new CreatingBankAccount(configuration);
+                        bankAccount.CreateBankAccount();
                         //main.UserAccountDetails();
                         break;
 
                     case 2:
-                        UpdateAccountWithNumber updateAccount = new UpdateAccountWithNumber();
+                        UpdateAccountWithNumber updateAccount = new UpdateAccountWithNumber(configuration);
                         Console.Write("Enter the account number you want to update: ");
                         long accountNumber = Convert.ToInt64(Console.ReadLine());
                         updateAccount.UserAccountDetails((int)accountNumber);
                         break;
                     case 3:
-                        AddAccountDetails addAccountDetails = new AddAccountDetails();
+                        AddAccountDetails addAccountDetails = new AddAccountDetails(configuration);
                         Console.Write("Update the Account details of the required user");
                         addAccountDetails.UserAccountDetails();
                         break;
                     case 4:
-                        AddAccountDetails getdetails= new AddAccountDetails();
+                        AddAccountDetails getdetails= new AddAccountDetails(configuration);
                         long accountdetals = Convert.ToInt64(Console.ReadLine());
                         getdetails.GetAccountDetails((int)accountdetals);
                         break;
