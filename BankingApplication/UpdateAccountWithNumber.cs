@@ -6,12 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
+using System.Configuration;
 
 namespace BankingApplication
 {
     public class UpdateAccountWithNumber
     {
-        string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
+        //string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
+
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
+
+
+        public UpdateAccountWithNumber(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+        }
+
         public void UserAccountDetails(int accountnumber)
         {
             Console.WriteLine("Enter the following details:");
@@ -56,9 +69,7 @@ namespace BankingApplication
                 }
             }
 
-            
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -92,7 +103,7 @@ namespace BankingApplication
         }
         private decimal GetMinimumBalance(long accountNumber)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 

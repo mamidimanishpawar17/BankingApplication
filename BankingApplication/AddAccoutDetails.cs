@@ -9,96 +9,114 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using Microsoft.Extensions.Configuration;
 
 namespace BankingApplication
 {
 
-    public class AddAccountDetails : CreatingBankAccount
+    public class AddAccountDetails 
     {
-        const string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = BankApplication; Integrated Security = True";
 
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
+
+        public AddAccountDetails(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+        }
+
+        
         public void UserAccountDetails()
         {
-            Console.WriteLine("Enter the following details:");
-            Console.Write("Account Number: ");
-            long accountNumber = Convert.ToInt64(Console.ReadLine());
-
-            Console.Write("Account Balance: ");
-            decimal accountBalance = Convert.ToDecimal(Console.ReadLine());
-
-            Console.Write("Minimum Account Balance: ");
-            decimal minimumAccountBalance = Convert.ToDecimal(Console.ReadLine());
-
-            Console.Write("Is Active? (True/False): ");
-            bool isActive = Convert.ToBoolean(Console.ReadLine());
-
-            Console.Write("Modified By: ");
-            string modifiedBy = Console.ReadLine();
-
-            Console.Write("Modified Date (MM/DD/YYYY): ");
-            DateTime? modifiedDate = null;
-            string modifiedDateString = Console.ReadLine();
-            if (!string.IsNullOrEmpty(modifiedDateString))
+            try
             {
-                modifiedDate = Convert.ToDateTime(modifiedDateString);
-            }
+                Console.WriteLine("Enter the following details:");
+                Console.Write("Account Number: ");
+                long accountNumber = Convert.ToInt64(Console.ReadLine());
 
-            if (minimumAccountBalance < 10000)
-            {
-                Console.WriteLine($"Minimum account balance is less than 10000. Please add {10000 - minimumAccountBalance} to the account within 1 minute.");
-                System.Threading.Thread.Sleep(60000); // Wait for 1 minute
+                Console.Write("Account Balance: ");
+                decimal accountBalance = Convert.ToDecimal(Console.ReadLine());
 
-                // Check if minimum balance has been added
-                decimal updatedMinimumBalance = GetMinimumBalance(accountNumber);
-                if (updatedMinimumBalance < 10000)
+                Console.Write("Minimum Account Balance: ");
+                decimal minimumAccountBalance = Convert.ToDecimal(Console.ReadLine());
+
+                Console.Write("Is Active? (True/False): ");
+                bool isActive = Convert.ToBoolean(Console.ReadLine());
+
+                Console.Write("Modified By: ");
+                string modifiedBy = Console.ReadLine();
+
+                Console.Write("Modified Date (MM/DD/YYYY): ");
+                DateTime? modifiedDate = null;
+                string modifiedDateString = Console.ReadLine();
+                if (!string.IsNullOrEmpty(modifiedDateString))
                 {
-                    Console.WriteLine($"Failed to add minimum balance within 1 minute. Account will be inactive.");
-                    isActive = false;
+                    modifiedDate = Convert.ToDateTime(modifiedDateString);
                 }
-                else
+
+                if (minimumAccountBalance < 10000)
                 {
-                    minimumAccountBalance = updatedMinimumBalance;
-                }
-            }
+                    Console.WriteLine($"Minimum account balance is less than 10000. Please add {10000 - minimumAccountBalance} to the account within 1 minute.");
+                    System.Threading.Thread.Sleep(60000); // Wait for 1 minute
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string insertQuery = "INSERT INTO AccountInformation (AccountNumber, AccountBalance, MinimumAccountBalance, IsActive, ModifiedBy, ModifiedDate) VALUES (@AccountNumber, @AccountBalance, @MinimumAccountBalance, @IsActive, @ModifiedBy, @ModifiedDate)";
-
-                using (SqlCommand command = new SqlCommand(insertQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@AccountNumber", accountNumber);
-                    command.Parameters.AddWithValue("@AccountBalance", accountBalance);
-                    command.Parameters.AddWithValue("@MinimumAccountBalance", minimumAccountBalance);
-                    command.Parameters.AddWithValue("@IsActive", isActive);
-                    command.Parameters.AddWithValue("@ModifiedBy", modifiedBy);
-                    command.Parameters.AddWithValue("@ModifiedDate", modifiedDate);
-
-                    int rowsAffected = command.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
+                    // Check if minimum balance has been added
+                    decimal updatedMinimumBalance = GetMinimumBalance(accountNumber);
+                    if (updatedMinimumBalance < 10000)
                     {
-                        Console.WriteLine("Account information created successfully!");
+                        Console.WriteLine($"Failed to add minimum balance within 1 minute. Account will be inactive.");
+                        isActive = false;
                     }
                     else
                     {
-                        Console.WriteLine("Failed to create account information.");
+                        minimumAccountBalance = updatedMinimumBalance;
                     }
                 }
 
-                connection.Close();
-            }
-            //mail to the user
-            SendEmail(accountNumber, accountBalance, minimumAccountBalance, isActive, modifiedBy, modifiedDate);
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
 
-            Console.ReadLine();
-            
+                    string insertQuery = "INSERT INTO AccountInformation (AccountNumber, AccountBalance, MinimumAccountBalance, IsActive, ModifiedBy, ModifiedDate) VALUES (@AccountNumber, @AccountBalance, @MinimumAccountBalance, @IsActive, @ModifiedBy, @ModifiedDate)";
+
+                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@AccountNumber", accountNumber);
+                        command.Parameters.AddWithValue("@AccountBalance", accountBalance);
+                        command.Parameters.AddWithValue("@MinimumAccountBalance", minimumAccountBalance);
+                        command.Parameters.AddWithValue("@IsActive", isActive);
+                        command.Parameters.AddWithValue("@ModifiedBy", modifiedBy);
+                        command.Parameters.AddWithValue("@ModifiedDate", modifiedDate);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            Console.WriteLine("Account information created successfully!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed to create account information.");
+                        }
+                    }
+
+                    connection.Close();
+                }
+                //mail to the user
+                SendEmail(accountNumber, accountBalance, minimumAccountBalance, isActive, modifiedBy, modifiedDate);
+
+                Console.ReadLine();
+
+            }
+            catch (Exception e)
+            {
+
+                throw new ArgumentException(e.Message, e.StackTrace);
+            }
         }
         private decimal GetMinimumBalance(long accountNumber)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -128,30 +146,38 @@ namespace BankingApplication
 
         public void GetAccountDetails(long accountNumber)
         {
-            Console.Write("Enter account number: ");
-            accountNumber = long.Parse(Console.ReadLine());
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                using (SqlCommand command = new SqlCommand("GetAccountByNumber", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add("@AccountNumber", SqlDbType.BigInt).Value = accountNumber;
+                Console.Write("Enter account number: ");
+                accountNumber = long.Parse(Console.ReadLine());
 
-                    connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    using (SqlCommand command = new SqlCommand("GetAccountByNumber", connection))
                     {
-                        while (reader.Read())
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add("@AccountNumber", SqlDbType.BigInt).Value = accountNumber;
+
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            Console.WriteLine($"AccountNumber: {reader["AccountNumber"]}");
-                            Console.WriteLine($"MinimumAccountBalance : {reader["MinimumAccountBalance"]}");
-                            Console.WriteLine($"Account Balance: {reader["AccountBalance"]}");
+                            while (reader.Read())
+                            {
+                                Console.WriteLine($"AccountNumber: {reader["AccountNumber"]}");
+                                Console.WriteLine($"MinimumAccountBalance : {reader["MinimumAccountBalance"]}");
+                                Console.WriteLine($"Account Balance: {reader["AccountBalance"]}");
+                            }
                         }
                     }
+
+                    Console.ReadLine();
+
                 }
+            }
+            catch (Exception e)
+            {
 
-                Console.ReadLine();
-
+                throw new ArgumentException(e.Message, e.StackTrace);
             }
         }
 
@@ -194,14 +220,16 @@ namespace BankingApplication
 
         private string GetAccountDetailsHtml(long accountNumber, decimal accountBalance, decimal minimumAccountBalance, bool isActive, string modifiedBy, DateTime? modifiedDate)
         {
-            string html = "<table><tbody>" +
-                $"<tr><td>Account Number:</td><td>{accountNumber}</td></tr>" +
-                $"<tr><td>Account Balance:</td><td>{accountBalance}</td></tr>" +
-                $"<tr><td>Minimum Account Balance:</td><td>{minimumAccountBalance}</td></tr>" +
-                $"<tr><td>Is Active:</td><td>{isActive}</td></tr>" +
-                $"<tr><td>Modified By:</td><td>{modifiedBy}</td></tr>" +
-                $"<tr><td>Modified Date:</td><td>{modifiedDate}</td></tr>" +
+            string html = "<table style=\"border-collapse: collapse;\">" +
+                "<tbody>" +
+                $"<tr><td style=\"border: 1px solid black;\">Account Number:</td><td style=\"border: 1px solid black;\">{accountNumber}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Account Balance:</td><td style=\"border: 1px solid black;\">{accountBalance}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Minimum Account Balance:</td><td style=\"border: 1px solid black;\">{minimumAccountBalance}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Is Active:</td><td style=\"border: 1px solid black;\">{isActive}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Modified By:</td><td style=\"border: 1px solid black;\">{modifiedBy}</td></tr>" +
+                $"<tr><td style=\"border: 1px solid black;\">Modified Date:</td><td style=\"border: 1px solid black;\">{modifiedDate}</td></tr>" +
                 "</tbody></table>";
+
 
             return html;
         }
